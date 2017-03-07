@@ -29,3 +29,11 @@ func MaxIn(sample []float64) float64 {
 func MinIn(sample []float64) float64 {
 	return matchingValue(math.Min, math.Inf(+1), sample)
 }
+
+func Sum(sample []float64) float64 {
+	total := 0.0
+	for _, value := range sample {
+		total += value
+	}
+	return total
+}

@@ -75,3 +75,29 @@ func TestMinInFail(t *testing.T) {
 
 	MinIn([]float64{})
 }
+
+func TestSum(t *testing.T) {
+	cases := []struct {
+		sample []float64
+		wanted float64
+	}{
+		{
+			[]float64{7.0},
+			7.0,
+		},
+		{
+			[]float64{32.0, 7.0},
+			39.0,
+		},
+		{
+			[]float64{},
+			0.0,
+		},
+	}
+	for _, c := range cases {
+		gotSum := Sum(c.sample)
+		if gotSum != c.wanted {
+			t.Errorf("Expected total (%v) summing up (%v) but got (%v)", c.wanted, c.sample, gotSum)
+		}
+	}
+}
