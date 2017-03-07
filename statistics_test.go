@@ -1,102 +1,101 @@
 package statistics
 
 import (
-	"math"
 	"testing"
 )
 
-func TestMaxIn(t *testing.T) {
+func TestMax(t *testing.T) {
 	cases := []struct {
-		sample []float64
+		sample Sample
 		wanted float64
 	}{
 		{
-			[]float64{11.0},
+			Sample{11.0},
 			11.0,
 		},
 		{
-			[]float64{11.0, 12.0},
+			Sample{11.0, 12.0},
 			12.0,
-		},
-		{
-			[]float64{11.0, 13.0, 12.0},
+		}, {
+			Sample{11.0, 13.0, 12.0},
 			13.0,
 		},
 	}
 	for _, c := range cases {
-		gotMax := MaxIn(c.sample)
+		gotMax := c.sample.Max()
+
 		if gotMax != c.wanted {
 			t.Errorf("Expected max (%v) in (%v) but got (%v)", c.wanted, c.sample, gotMax)
 		}
 	}
 }
 
-func TestMaxInFail(t *testing.T) {
+func TestMaxFail(t *testing.T) {
 	defer func() {
 		if recover() == nil {
 			t.Error("Expected panic when empty sample")
 		}
 	}()
 
-	MaxIn([]float64{})
+	Sample{}.Max()
 }
 
-func TestMinIn(t *testing.T) {
+func TestMin(t *testing.T) {
 	cases := []struct {
-		sample []float64
+		sample Sample
 		wanted float64
 	}{
 		{
-			[]float64{13.0},
+			Sample{13.0},
 			13.0,
 		},
 		{
-			[]float64{12.0, 13.0},
+			Sample{12.0, 13.0},
 			12.0,
 		},
 		{
-			[]float64{12.0, 11.0, 13.0},
+			Sample{12.0, 11.0, 13.0},
 			11.0,
 		},
 	}
 	for _, c := range cases {
-		gotMin := MinIn(c.sample)
+		gotMin := c.sample.Min()
 		if gotMin != c.wanted {
 			t.Errorf("Expected max (%v) in (%v) but got (%v)", c.wanted, c.sample, gotMin)
 		}
 	}
 }
 
-func TestMinInFail(t *testing.T) {
+func TestMinFail(t *testing.T) {
 	defer func() {
 		if recover() == nil {
 			t.Error("Expected panic when empty sample")
 		}
 	}()
 
-	MinIn([]float64{})
+	Sample{}.Min()
 }
 
 func TestSum(t *testing.T) {
 	cases := []struct {
-		sample []float64
+		sample Sample
 		wanted float64
 	}{
 		{
-			[]float64{7.0},
+			Sample{7.0},
 			7.0,
 		},
 		{
-			[]float64{32.0, 7.0},
+			Sample{32.0, 7.0},
 			39.0,
 		},
 		{
-			[]float64{},
+			Sample{},
 			0.0,
 		},
 	}
 	for _, c := range cases {
-		gotSum := Sum(c.sample)
+		gotSum := c.sample.Sum()
 		if gotSum != c.wanted {
 			t.Errorf("Expected total (%v) summing up (%v) but got (%v)", c.wanted, c.sample, gotSum)
 		}
@@ -105,20 +104,20 @@ func TestSum(t *testing.T) {
 
 func TestMean(t *testing.T) {
 	cases := []struct {
-		sample []float64
+		sample Sample
 		wanted float64
 	}{
 		{
-			[]float64{7.0},
+			Sample{7.0},
 			7.0,
 		},
 		{
-			[]float64{13.0, 14.0},
+			Sample{13.0, 14.0},
 			13.5,
 		},
 	}
 	for _, c := range cases {
-		gotMean := Mean(c.sample)
+		gotMean := c.sample.Mean()
 		if gotMean != c.wanted {
 			t.Errorf("Expected mean of (%v) for (%v) but got (%v)", c.wanted, c.sample, gotMean)
 		}
@@ -126,9 +125,11 @@ func TestMean(t *testing.T) {
 }
 
 func TestMeanReturnsNaNWhenEmptySlice(t *testing.T) {
-	gotMean := Mean([]float64{})
+	defer func() {
+		if recover() == nil {
+			t.Errorf("Expected mean panic when empty sample")
+		}
+	}()
 
-	if !math.IsNaN(gotMean) {
-		t.Errorf("Expected mean Nan for empty slice but got (%v)", gotMean)
-	}
+	Sample{}.Mean()
 }

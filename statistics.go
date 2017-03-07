@@ -4,15 +4,16 @@ import (
 	"math"
 )
 
-func validate(sample []float64) {
+func validate(sample Sample) {
 	if len(sample) == 0 {
 		panic("empty sample supplyed")
 	}
 }
 
 type binaryCondition func(v1, v2 float64) float64
+type Sample []float64
 
-func matchingValue(fn binaryCondition, initial float64, sample []float64) float64 {
+func matchingValue(fn binaryCondition, initial float64, sample Sample) float64 {
 	validate(sample)
 
 	current := initial
@@ -22,15 +23,15 @@ func matchingValue(fn binaryCondition, initial float64, sample []float64) float6
 	return current
 }
 
-func MaxIn(sample []float64) float64 {
+func (sample Sample) Max() float64 {
 	return matchingValue(math.Max, math.Inf(-1), sample)
 }
 
-func MinIn(sample []float64) float64 {
+func (sample Sample) Min() float64 {
 	return matchingValue(math.Min, math.Inf(+1), sample)
 }
 
-func Sum(sample []float64) float64 {
+func (sample Sample) Sum() float64 {
 	total := 0.0
 	for _, value := range sample {
 		total += value
@@ -38,6 +39,10 @@ func Sum(sample []float64) float64 {
 	return total
 }
 
-func Mean(sample []float64) float64 {
-	return Sum(sample) / float64(len(sample))
+func (sample Sample) Mean() float64 {
+	sampleSize := len(sample)
+	if sampleSize == 0 {
+		panic("Not allowed calculate mean with empty sample")
+	}
+	return sample.Sum() / float64(sampleSize)
 }
