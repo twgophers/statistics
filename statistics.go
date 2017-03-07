@@ -37,3 +37,7 @@ func Sum(sample []float64) float64 {
 	}
 	return total
 }
+
+func Mean(sample []float64) float64 {
+	return Sum(sample) / float64(len(sample))
+}

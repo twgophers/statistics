@@ -1,6 +1,7 @@
 package statistics
 
 import (
+	"math"
 	"testing"
 )
 
@@ -99,5 +100,35 @@ func TestSum(t *testing.T) {
 		if gotSum != c.wanted {
 			t.Errorf("Expected total (%v) summing up (%v) but got (%v)", c.wanted, c.sample, gotSum)
 		}
+	}
+}
+
+func TestMean(t *testing.T) {
+	cases := []struct {
+		sample []float64
+		wanted float64
+	}{
+		{
+			[]float64{7.0},
+			7.0,
+		},
+		{
+			[]float64{13.0, 14.0},
+			13.5,
+		},
+	}
+	for _, c := range cases {
+		gotMean := Mean(c.sample)
+		if gotMean != c.wanted {
+			t.Errorf("Expected mean of (%v) for (%v) but got (%v)", c.wanted, c.sample, gotMean)
+		}
+	}
+}
+
+func TestMeanReturnsNaNWhenEmptySlice(t *testing.T) {
+	gotMean := Mean([]float64{})
+
+	if !math.IsNaN(gotMean) {
+		t.Errorf("Expected mean Nan for empty slice but got (%v)", gotMean)
 	}
 }
