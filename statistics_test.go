@@ -127,3 +127,41 @@ func TestMeanPanicsWhenEmptySlice(t *testing.T) {
 
 	Sample{}.Mean()
 }
+
+func TestMedian(t *testing.T) {
+	cases := []SampleTestTable{
+		{
+			Sample{7.0},
+			7.0,
+		},
+		{
+			Sample{8.0, 11.0},
+			9.5,
+		},
+		{
+			Sample{8.0, 11.0, 7.0},
+			11.0,
+		},
+		{
+			Sample{8.0, 10.0, 11.0, 7.0},
+			10.5,
+		},
+	}
+	for _, c := range cases {
+		gotMedian := c.sample.Median()
+
+		if gotMedian != c.wanted {
+			t.Errorf("Expected median (%v) for (%v) but got (%v)", c.wanted, c.sample, gotMedian)
+		}
+	}
+}
+
+func TestMedianPanicsWhenEmptySlice(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Errorf("Expected median panic when empty sample")
+		}
+	}()
+
+	Sample{}.Median()
+}

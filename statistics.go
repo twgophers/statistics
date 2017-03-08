@@ -40,10 +40,21 @@ func (sample Sample) Sum() float64 {
 }
 
 func (sample Sample) Mean() float64 {
-	if sample.empty() {
-		panic("Not allowed calculate mean with empty sample")
-	}
+	sample.check()
+
 	return sample.Sum() / float64(sample.size())
+}
+
+func (sample Sample) Median() float64 {
+	sample.check()
+
+	half := sample.size() / 2
+
+	if sample.oddSize() {
+		return sample[half]
+	}
+
+	return Sample{sample[half-1], sample[half]}.Mean()
 }
 
 func (sample Sample) size() int {
@@ -53,4 +64,13 @@ func (sample Sample) size() int {
 func (sample Sample) empty() bool {
 	return sample.size() == 0
 }
+
+func (sample Sample) oddSize() bool {
+	return sample.size()%2 == 1
+}
+
+func (sample Sample) check() {
+	if sample.empty() {
+		panic("Operation Not allowed with empty sample")
+	}
 }
