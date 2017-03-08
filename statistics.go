@@ -40,9 +40,17 @@ func (sample Sample) Sum() float64 {
 }
 
 func (sample Sample) Mean() float64 {
-	sampleSize := len(sample)
-	if sampleSize == 0 {
+	if sample.empty() {
 		panic("Not allowed calculate mean with empty sample")
 	}
-	return sample.Sum() / float64(sampleSize)
+	return sample.Sum() / float64(sample.size())
+}
+
+func (sample Sample) size() int {
+	return len(sample)
+}
+
+func (sample Sample) empty() bool {
+	return sample.size() == 0
+}
 }

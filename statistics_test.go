@@ -111,13 +111,14 @@ func TestMean(t *testing.T) {
 	}
 	for _, c := range cases {
 		gotMean := c.sample.Mean()
+
 		if gotMean != c.wanted {
 			t.Errorf("Expected mean of (%v) for (%v) but got (%v)", c.wanted, c.sample, gotMean)
 		}
 	}
 }
 
-func TestMeanReturnsNaNWhenEmptySlice(t *testing.T) {
+func TestMeanPanicsWhenEmptySlice(t *testing.T) {
 	defer func() {
 		if recover() == nil {
 			t.Errorf("Expected mean panic when empty sample")
