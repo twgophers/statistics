@@ -4,11 +4,13 @@ import (
 	"testing"
 )
 
+type SampleTestTable struct {
+	sample Sample
+	wanted float64
+}
+
 func TestMax(t *testing.T) {
-	cases := []struct {
-		sample Sample
-		wanted float64
-	}{
+	cases := []SampleTestTable{
 		{
 			Sample{11.0},
 			11.0,
@@ -41,10 +43,7 @@ func TestMaxFail(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
-	cases := []struct {
-		sample Sample
-		wanted float64
-	}{
+	cases := []SampleTestTable{
 		{
 			Sample{13.0},
 			13.0,
@@ -77,10 +76,7 @@ func TestMinFail(t *testing.T) {
 }
 
 func TestSum(t *testing.T) {
-	cases := []struct {
-		sample Sample
-		wanted float64
-	}{
+	cases := []SampleTestTable{
 		{
 			Sample{7.0},
 			7.0,
@@ -103,10 +99,7 @@ func TestSum(t *testing.T) {
 }
 
 func TestMean(t *testing.T) {
-	cases := []struct {
-		sample Sample
-		wanted float64
-	}{
+	cases := []SampleTestTable{
 		{
 			Sample{7.0},
 			7.0,
