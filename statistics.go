@@ -2,6 +2,7 @@ package statistics
 
 import (
 	"math"
+	"sort"
 )
 
 func validate(sample Sample) {
@@ -47,6 +48,8 @@ func (sample Sample) Mean() float64 {
 
 func (sample Sample) Median() float64 {
 	sample.check()
+
+	sort.Float64s(sample)
 
 	half := sample.size() / 2
 
