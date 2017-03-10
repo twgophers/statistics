@@ -60,6 +60,14 @@ func (sample Sample) Median() float64 {
 	return Sample{sample[half-1], sample[half]}.Mean()
 }
 
+func (sample Sample) Quantile(percentile float64) float64 {
+	pIndex := int(percentile * float64(sample.size()))
+
+	sort.Float64s(sample)
+
+	return sample[pIndex]
+}
+
 func (sample Sample) size() int {
 	return len(sample)
 }

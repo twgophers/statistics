@@ -169,3 +169,44 @@ func TestMedianPanicsWhenEmptySlice(t *testing.T) {
 
 	Sample{}.Median()
 }
+
+type SampleQuantileTestTable struct {
+	SampleTestTable
+	percentile float64
+}
+
+func TestQuantile(t *testing.T) {
+	cases := []SampleQuantileTestTable{
+		{
+
+			SampleTestTable: SampleTestTable{
+				Sample{7.0},
+				7.0,
+			},
+			percentile: 0.99,
+		},
+		{
+
+			SampleTestTable: SampleTestTable{
+				Sample{7.0, 9.0, 10.0, 13.0, 17.0},
+				13.0,
+			},
+			percentile: 0.75,
+		},
+		{
+
+			SampleTestTable: SampleTestTable{
+				Sample{7.0, 9.0, 13.0, 10.0, 17.0},
+				13.0,
+			},
+			percentile: 0.75,
+		},
+	}
+
+	for _, c := range cases {
+		gotQuantile := c.sample.Quantile(c.percentile)
+		if gotQuantile != c.wanted {
+			t.Errorf("The expected quantile for (%v) with percentile of (%.2f) was (%.2f) but got (%.2f)", c.sample, c.percentile, c.wanted, gotQuantile)
+		}
+	}
+}
