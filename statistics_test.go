@@ -1,12 +1,13 @@
 package statistics
 
 import (
+	"reflect"
 	"testing"
 )
 
 type SampleTestTable struct {
 	sample Sample
-	wanted float64
+	wanted interface{}
 }
 
 func TestMax(t *testing.T) {
@@ -209,4 +210,39 @@ func TestQuantile(t *testing.T) {
 			t.Errorf("The expected quantile for (%v) with percentile of (%.2f) was (%.2f) but got (%.2f)", c.sample, c.percentile, c.wanted, gotQuantile)
 		}
 	}
+}
+
+func TestMode(t *testing.T) {
+	cases := []SampleTestTable{
+		{
+			Sample{7.0},
+			[]float64{7.0},
+		},
+		{
+			Sample{7.0, 13.0, 13.0},
+			[]float64{13.0},
+		},
+		{
+			Sample{17.0, 7.0, 13.0, 17.0, 13.0},
+			[]float64{17.0, 13.0},
+		},
+	}
+
+	for _, c := range cases {
+		gotMode := c.sample.Mode()
+
+		if !reflect.DeepEqual(gotMode, c.wanted) {
+			t.Errorf("Expected mode (%v) for (%v) but got (%v)", c.wanted, c.sample, gotMode)
+		}
+	}
+}
+
+func TestModeFailWhenEmptySample(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Error("A panic was expected but nothing happened when calculate mode for empty Sample")
+		}
+	}()
+
+	Sample{}.Mode()
 }

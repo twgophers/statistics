@@ -68,6 +68,47 @@ func (sample Sample) Quantile(percentile float64) float64 {
 	return sample[pIndex]
 }
 
+func (sample Sample) Mode() []float64 {
+	sample.check()
+
+	counts := count(sample)
+
+	maxQuantitie := maxValue(counts)
+
+	modes := []float64{}
+
+	for k, v := range counts {
+		if v == maxQuantitie {
+			modes = append(modes, k)
+		}
+	}
+
+	return modes
+}
+
+func maxValue(counts map[float64]int64) int64 {
+	var quantities Sample = make([]float64, 0, len(counts))
+	for _, v := range counts {
+		quantities = append(quantities, float64(v))
+	}
+
+	return int64(quantities.Max())
+}
+
+func count(sample Sample) map[float64]int64 {
+	counts := map[float64]int64{}
+
+	for _, value := range sample {
+		v, ok := counts[value]
+		if !ok {
+			v = 0
+		}
+		counts[value] = v + 1
+	}
+
+	return counts
+}
+
 func (sample Sample) size() int {
 	return len(sample)
 }
