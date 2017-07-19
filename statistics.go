@@ -1,38 +1,15 @@
 package statistics
 
 import (
+	"fmt"
 	"math"
 	"sort"
+
+	"github.com/twgophers/collections"
+	"github.com/twgophers/linalg"
 )
 
-func validate(sample Sample) {
-	if len(sample) == 0 {
-		panic("empty sample supplyed")
-	}
-}
-
-type binaryCondition func(v1, v2 float64) float64
-type Sample []float64
-
-func matchingValue(fn binaryCondition, initial float64, sample Sample) float64 {
-	validate(sample)
-
-	current := initial
-	for _, value := range sample {
-		current = fn(current, value)
-	}
-	return current
-}
-
-func (sample Sample) Max() float64 {
-	return matchingValue(math.Max, math.Inf(-1), sample)
-}
-
-func (sample Sample) Min() float64 {
-	return matchingValue(math.Min, math.Inf(+1), sample)
-}
-
-func (sample Sample) Sum() float64 {
+func Sum(sample collections.Vector) float64 {
 	total := 0.0
 	for _, value := range sample {
 		total += value
@@ -40,89 +17,109 @@ func (sample Sample) Sum() float64 {
 	return total
 }
 
-func (sample Sample) Mean() float64 {
-	sample.check()
+func Mean(sample collections.Vector) float64 {
+	check(sample)
 
-	return sample.Sum() / float64(sample.size())
+	return Sum(sample) / float64(sample.Len())
 }
 
-func (sample Sample) Median() float64 {
-	sample.check()
+func Median(sample collections.Vector) float64 {
+	check(sample)
 
 	sort.Float64s(sample)
 
-	half := sample.size() / 2
+	half := sample.Len() / 2
 
-	if sample.oddSize() {
+	if oddSize(sample) {
 		return sample[half]
 	}
 
-	return Sample{sample[half-1], sample[half]}.Mean()
+	return Mean(collections.Vector{sample[half-1], sample[half]})
 }
 
-func (sample Sample) Quantile(percentile float64) float64 {
-	pIndex := int(percentile * float64(sample.size()))
+func Quantile(sample collections.Vector, percentile float64) float64 {
+	pIndex := int(percentile * float64(sample.Len()))
 
 	sort.Float64s(sample)
 
 	return sample[pIndex]
 }
 
-func (sample Sample) Mode() []float64 {
-	sample.check()
+func Mode(sample collections.Vector) collections.Vector {
+	check(sample)
+	counter := collections.NewCounter(sample)
+	maxQuantity := counter.MaxValue()
 
-	counts := count(sample)
+	modes := make(collections.Vector, 0, len(sample))
 
-	maxQuantitie := maxValue(counts)
-
-	modes := []float64{}
-
-	for k, v := range counts {
-		if v == maxQuantitie {
+	for k, v := range counter.Items {
+		if v == maxQuantity {
 			modes = append(modes, k)
 		}
 	}
 
+	sort.Sort(sort.Reverse(modes))
+
 	return modes
 }
 
-func maxValue(counts map[float64]int64) int64 {
-	var quantities Sample = make([]float64, 0, len(counts))
-	for _, v := range counts {
-		quantities = append(quantities, float64(v))
-	}
-
-	return int64(quantities.Max())
+func DataRange(sample collections.Vector) float64 {
+	return sample.Max() - sample.Min()
 }
 
-func count(sample Sample) map[float64]int64 {
-	counts := map[float64]int64{}
+func DispersionMean(sample collections.Vector) collections.Vector {
+	mean := Mean(sample)
+	dispersion := make(collections.Vector, 0, cap(sample))
 
 	for _, value := range sample {
-		v, ok := counts[value]
-		if !ok {
-			v = 0
-		}
-		counts[value] = v + 1
+		dispersion = append(dispersion, value-mean)
 	}
 
-	return counts
+	return dispersion
 }
 
-func (sample Sample) size() int {
-	return len(sample)
+func Variance(sample collections.Vector) float64 {
+	checkMinimumSize(sample.Len(), 1)
+	dispersionMean := DispersionMean(sample)
+
+	return linalg.SumOfSquares(dispersionMean) / float64(sample.Len()-1)
 }
 
-func (sample Sample) empty() bool {
-	return sample.size() == 0
+func StandardDeviation(sample collections.Vector) float64 {
+	return math.Sqrt(Variance(sample))
 }
 
-func (sample Sample) oddSize() bool {
-	return sample.size()%2 == 1
+func InterQuantileRange(sample collections.Vector) float64 {
+	return Quantile(sample, 0.75) - Quantile(sample, 0.25)
 }
 
-func (sample Sample) check() {
-	if sample.empty() {
+func Covariance(x, y collections.Vector) float64 {
+	n := x.Len()
+	checkMinimumSize(n, 1)
+	return linalg.Dot(DispersionMean(x), DispersionMean(y)) / float64(n-1)
+}
+
+func Correlation(x, y collections.Vector) float64 {
+	standardDeviationX := StandardDeviation(x)
+	standardDeviationY := StandardDeviation(y)
+	if standardDeviationX > 0 && standardDeviationY > 0 {
+		return Covariance(x, y) / standardDeviationX / standardDeviationY
+	}
+	return float64(0)
+}
+
+func checkMinimumSize(value, minimum int) {
+	if value <= minimum {
+		panic(fmt.Errorf("The minimum size was not obeyed - %d", minimum))
+	}
+}
+
+func oddSize(sample collections.Vector) bool {
+	return sample.Len()%2 == 1
+}
+
+func check(sample collections.Vector) {
+	if sample.Empty() {
 		panic("Operation Not allowed with empty sample")
 	}
 }
