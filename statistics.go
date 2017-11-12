@@ -20,7 +20,7 @@ func Sum(sample collections.Vector) float64 {
 func Mean(sample collections.Vector) float64 {
 	check(sample)
 
-	return Sum(sample) / float64(sample.Len())
+	return Sum(sample) / float64(len(sample))
 }
 
 func Median(sample collections.Vector) float64 {
@@ -28,7 +28,7 @@ func Median(sample collections.Vector) float64 {
 
 	sort.Float64s(sample)
 
-	half := sample.Len() / 2
+	half := len(sample) / 2
 
 	if oddSize(sample) {
 		return sample[half]
@@ -38,7 +38,7 @@ func Median(sample collections.Vector) float64 {
 }
 
 func Quantile(sample collections.Vector, percentile float64) float64 {
-	pIndex := int(percentile * float64(sample.Len()))
+	pIndex := int(percentile * float64(len(sample)))
 
 	sort.Float64s(sample)
 
@@ -58,7 +58,7 @@ func Mode(sample collections.Vector) collections.Vector {
 		}
 	}
 
-	sort.Sort(sort.Reverse(modes))
+	sort.Slice(modes, func(i, j int) bool { return modes[j] < modes[i] })
 
 	return modes
 }
@@ -79,10 +79,10 @@ func DispersionMean(sample collections.Vector) collections.Vector {
 }
 
 func Variance(sample collections.Vector) float64 {
-	checkMinimumSize(sample.Len(), 1)
+	checkMinimumSize(len(sample), 1)
 	dispersionMean := DispersionMean(sample)
 
-	return linalg.SumOfSquares(dispersionMean) / float64(sample.Len()-1)
+	return linalg.SumOfSquares(dispersionMean) / float64(len(sample)-1)
 }
 
 func StandardDeviation(sample collections.Vector) float64 {
@@ -94,7 +94,7 @@ func InterQuantileRange(sample collections.Vector) float64 {
 }
 
 func Covariance(x, y collections.Vector) float64 {
-	n := x.Len()
+	n := len(x)
 	checkMinimumSize(n, 1)
 	return linalg.Dot(DispersionMean(x), DispersionMean(y)) / float64(n-1)
 }
@@ -115,7 +115,7 @@ func checkMinimumSize(value, minimum int) {
 }
 
 func oddSize(sample collections.Vector) bool {
-	return sample.Len()%2 == 1
+	return len(sample)%2 == 1
 }
 
 func check(sample collections.Vector) {
